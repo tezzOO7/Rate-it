@@ -146,7 +146,21 @@ const Profile = () => {
   };
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ 
+        provider: "google",
+        options: {
+          redirectTo: 'https://tezzoo7.github.io/Rate-it/'
+        }
+      });
+      
+      if (error) {
+        setAuthError('Google login failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      setAuthError('Google login error. Please try again.');
+    }
   };
 
   const switchAuthMode = (mode) => {

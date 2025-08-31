@@ -35,6 +35,13 @@ const SearchInfluencer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchError, setSearchError] = useState(null);
+  
+  // Infinite scrolling states
+  const [displayedInfluencers, setDisplayedInfluencers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 12; // Show 12 influencers per page
 
   // Enhanced filtering with multiple criteria
   const filteredInfluencers = influencers.filter((inf) => {
@@ -92,6 +99,49 @@ const SearchInfluencer = () => {
       setSearchError(validationError);
     }
   };
+
+  // Load more influencers when scrolling
+  const loadMoreInfluencers = () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const newInfluencers = filteredInfluencers.slice(startIndex, endIndex);
+      
+      setDisplayedInfluencers(prev => [...prev, ...newInfluencers]);
+      setCurrentPage(prev => prev + 1);
+      setHasMore(endIndex < filteredInfluencers.length);
+      setIsLoadingMore(false);
+    }, 500);
+  };
+
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        loadMoreInfluencers();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [filteredInfluencers, currentPage, hasMore, isLoadingMore]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setDisplayedInfluencers([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    
+    // Load initial batch
+    const initialInfluencers = filteredInfluencers.slice(0, ITEMS_PER_PAGE);
+    setDisplayedInfluencers(initialInfluencers);
+    setHasMore(filteredInfluencers.length > ITEMS_PER_PAGE);
+  }, [filteredInfluencers]);
 
   useEffect(() => {
     const fetchInfluencers = async () => {
@@ -304,8 +354,11 @@ const SearchInfluencer = () => {
         {!isLoading && (searchQuery || activeTag !== 'All' || selectedRating !== 'All Ratings' || selectedPlatform !== 'All Platforms') && (
           <div className="max-w-5xl mx-auto mt-4 text-center">
             <p className="text-slate-600">
-              Showing {filteredInfluencers.length} of {influencers.length} influencer{influencers.length !== 1 ? 's' : ''}
+              Showing {displayedInfluencers.length} of {filteredInfluencers.length} influencer{filteredInfluencers.length !== 1 ? 's' : ''}
               {searchQuery && ` for "${searchQuery}"`}
+              {hasMore && displayedInfluencers.length > 0 && (
+                <span className="text-blue-600"> • Scroll to load more</span>
+              )}
             </p>
           </div>
         )}
@@ -313,9 +366,9 @@ const SearchInfluencer = () => {
                {/* Display Filtered Results */}
          {!isLoading && (
            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-             {filteredInfluencers.length > 0 ? (
+             {displayedInfluencers.length > 0 ? (
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                 {filteredInfluencers.map((influencer) => (
+                 {displayedInfluencers.map((influencer) => (
                    <InfluencerCard key={influencer.id} influencer={influencer} />
                  ))}
                </div>
@@ -324,6 +377,21 @@ const SearchInfluencer = () => {
                  <p className="text-slate-500 text-base sm:text-lg">
                    {searchQuery ? `No influencers found for "${searchQuery}"` : 'No influencers available'}
                  </p>
+               </div>
+             )}
+             
+             {/* Load More Indicator */}
+             {isLoadingMore && (
+               <div className="text-center mt-8">
+                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                 <p className="mt-2 text-slate-600 text-sm">Loading more influencers...</p>
+               </div>
+             )}
+             
+             {/* End of Results */}
+             {!hasMore && displayedInfluencers.length > 0 && (
+               <div className="text-center mt-8">
+                 <p className="text-slate-500 text-sm">You've reached the end of the results</p>
                </div>
              )}
            </div>
