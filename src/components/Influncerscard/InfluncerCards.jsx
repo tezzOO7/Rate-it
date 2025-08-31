@@ -104,7 +104,7 @@ const InfluencerCard = ({ influencer }) => {
         </div>
 
         {/* Button with gradient */}
-        <Link to={`/profile/${influencer.id}`} className="block mt-4">
+        <Link to={`/Profile/${influencer.id}`} className="block mt-4">
           <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 px-4 rounded-lg hover:opacity-90 transition text-sm sm:text-base font-medium">
             View Profile
           </button>

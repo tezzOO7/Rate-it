@@ -97,10 +97,13 @@ export default function Navbar() {
 
   const handleGoogleLogin = async () => {
     try {
+      // Dynamic redirect URL that works in both development and production
+      const redirectUrl = window.location.origin + window.location.pathname;
+      
       const { error } = await supabase.auth.signInWithOAuth({ 
         provider: "google",
         options: {
-          redirectTo: 'https://tezzoo7.github.io/Rate-it/'
+          redirectTo: redirectUrl
         }
       });
       

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import supabase from "../supabaseClient";
 import Navbar from "../components/header/Navbar";
 import ReviewModal from "../components/ReviewModal/ReviewModal";
+import SocialMediaBackground from "../components/SocialMediaBackground";
 
 const Profile = () => {
   const { id } = useParams();
@@ -147,10 +148,13 @@ const Profile = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      // Dynamic redirect URL that works in both development and production
+      const redirectUrl = window.location.origin + window.location.pathname;
+      
       const { error } = await supabase.auth.signInWithOAuth({ 
         provider: "google",
         options: {
-          redirectTo: 'https://tezzoo7.github.io/Rate-it/'
+          redirectTo: redirectUrl
         }
       });
       
@@ -217,8 +221,10 @@ const Profile = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="bg-gray-50 min-h-screen">
+      <SocialMediaBackground />
+      <div className="relative z-10">
+        <Navbar />
+        <div className="bg-gray-50/80 backdrop-blur-sm min-h-screen">
         <div className="max-w-6xl mx-auto px-4 py-6">
           {/* Back Button */}
           <Link
@@ -382,6 +388,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Auth Modal */}
