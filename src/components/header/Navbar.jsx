@@ -49,33 +49,45 @@ export default function Navbar() {
     e.preventDefault();
     setAuthError(null);
 
-    let error = null;
+    try {
+      let error = null;
 
-    if (authMode === "login") {
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email: form.email,
-        password: form.password,
-      });
-      error = loginError;
-    } else {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          data: {
-            name: form.name,
+      if (authMode === "login") {
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: form.email,
+          password: form.password,
+        });
+        error = loginError;
+      } else {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: {
+            data: {
+              name: form.name,
+            },
           },
-        },
-      });
-      error = signUpError;
-    }
+        });
+        error = signUpError;
+      }
 
-    if (error) {
-      setAuthError(error.message);
-    } else {
-      setMenuOpen(false);
-      setShowAuth(false);
-      setForm({ name: "", email: "", password: "" });
+      if (error) {
+        // Enhanced error messages for mobile
+        let errorMessage = error.message;
+        if (error.message.includes('fetch')) {
+          errorMessage = 'Connection error. Please check your internet connection and try again.';
+        } else if (error.message.includes('CORS')) {
+          errorMessage = 'Browser security error. Please try using a different browser or clear your cache.';
+        }
+        setAuthError(errorMessage);
+      } else {
+        setMenuOpen(false);
+        setShowAuth(false);
+        setForm({ name: "", email: "", password: "" });
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      setAuthError('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -84,7 +96,21 @@ export default function Navbar() {
   };
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ 
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      
+      if (error) {
+        setAuthError('Google login failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      setAuthError('Google login error. Please try again.');
+    }
   };
 
   const switchAuthMode = (mode) => {
