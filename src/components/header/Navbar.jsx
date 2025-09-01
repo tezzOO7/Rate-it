@@ -121,20 +121,20 @@ export default function Navbar() {
     setAuthError(null);
   };
 
-  const displayName = profile?.user_name || user?.email;
+  const displayName = profile?.user_name;
 
   return (
     <nav className="bg-white border shadow border-gray-300 text-black px-6 py-4">
       {/* Container to center content */}
       <div className="max-w-6xl mx-auto flex justify-between items-center relative">
-        <h1 className="text-2xl font-bold text-blue-500">⚝ Rate it</h1>
+       <Link to={"/"} > <h1 className="text-2xl font-bold text-blue-500" > ⚝ Rate it</h1> </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-5">
           <Link to={"/"} className="hover:text-blue-400">
             Discover
           </Link>
-          📈<Link
+          <Link
             to={"/Trending"}
             className="
     flex items-center space-x-2
@@ -147,6 +147,9 @@ export default function Navbar() {
           >
          
             <span>Trending</span>
+          </Link>
+          <Link to={"/about"} className="hover:text-blue-400">
+            About
           </Link>
 
           {user ? (
@@ -184,7 +187,7 @@ export default function Navbar() {
            <Link to={"/"} className="hover:text-blue-400">
             Discover
           </Link>
-          📈<Link
+          <Link
             to={"/Trending"}
             className="
     flex items-center space-x-2
@@ -197,6 +200,9 @@ export default function Navbar() {
           >
          
             <span>Trending</span>
+          </Link>
+          <Link to={"/about"} className="hover:text-blue-400">
+            About
           </Link>
           <div className="border-t border-gray-400 w-1/2 my-2"></div>
           {user ? (

@@ -53,8 +53,8 @@
 
 /* Left to right scrolling animation */
 @keyframes scroll-left-to-right {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Apply animations to classes */
@@ -68,4 +68,6 @@
 .animate-float-8 { animation: float-8 15s ease-in-out infinite; }
 
 /* Utility class for left to right scrolling */
-.animate-scroll-left-to-right { animation: scroll-left-to-right 20s linear infinite; }
+.animate-scroll-left-to-right {
+    animation: scroll-left-to-right 40s linear infinite;
+}
