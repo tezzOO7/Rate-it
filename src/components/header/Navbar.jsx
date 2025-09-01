@@ -180,7 +180,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="absolute top-16 left-0 w-full bg-white flex flex-col items-center space-y-4 py-6 md:hidden z-10">
+        <div className=" top-16 left-0 w-full bg-white flex flex-col items-center space-y-4 py-6 md:hidden z-10">
            <Link to={"/"} className="hover:text-blue-400">
             Discover
           </Link>

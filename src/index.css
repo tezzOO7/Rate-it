@@ -51,6 +51,12 @@
   90% { transform: translateY(-14px) rotate(3deg); }
 }
 
+/* Left to right scrolling animation */
+@keyframes scroll-left-to-right {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Apply animations to classes */
 .animate-float-1 { animation: float-1 8s ease-in-out infinite; }
 .animate-float-2 { animation: float-2 9s ease-in-out infinite; }
@@ -60,3 +66,6 @@
 .animate-float-6 { animation: float-6 13s ease-in-out infinite; }
 .animate-float-7 { animation: float-7 14s ease-in-out infinite; }
 .animate-float-8 { animation: float-8 15s ease-in-out infinite; }
+
+/* Utility class for left to right scrolling */
+.animate-scroll-left-to-right { animation: scroll-left-to-right 20s linear infinite; }

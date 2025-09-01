@@ -3,10 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import supabase from "../supabaseClient";
 import Navbar from "../components/header/Navbar";
 import ReviewModal from "../components/ReviewModal/ReviewModal";
-import SocialMediaBackground from "../components/SocialMediaBackground";
+
 
 const Profile = () => {
   const { id } = useParams();
+  
+
 
   const [influencer, setInfluencer] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -173,8 +175,11 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    fetchInfluencer();
-    fetchReviews();
+   
+    if (id) {
+      fetchInfluencer();
+      fetchReviews();
+    }
   }, [id]);
 
   // ✅ Submit new review
@@ -221,7 +226,7 @@ const Profile = () => {
 
   return (
     <>
-      <SocialMediaBackground />
+      
       <div className="relative z-10">
         <Navbar />
         <div className="bg-gray-50/80 backdrop-blur-sm min-h-screen">

@@ -152,7 +152,7 @@ const AddNewInfluencerModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 overflow-auto"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-white bg-opacity-90 p-4 overflow-auto pt-10"
       onClick={onClose}
     >
       <div

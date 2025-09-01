@@ -1,9 +1,10 @@
 import React from 'react'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import supabase from '../supabaseClient';
 // Correct the path if your modal is in a different folder
 import AddNewInfluencerModal from './AddinfluencerModal'; 
 import InfluencerCard from './Influncerscard/InfluncerCards';
+
 import { HiMagnifyingGlass, HiPlus, HiUserGroup, HiChevronDown } from 'react-icons/hi2';
 
 // Input sanitization function
@@ -43,45 +44,47 @@ const SearchInfluencer = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const ITEMS_PER_PAGE = 12; // Show 12 influencers per page
 
-  // Enhanced filtering with multiple criteria
-  const filteredInfluencers = influencers.filter((inf) => {
-    // Check if influencer has required fields
-    if (!inf.fullname && !inf.username) return false;
-    
-    const sanitizedQuery = sanitizeInput(searchQuery);
-    const searchLower = sanitizedQuery.toLowerCase();
-    
-    // Search filter
-    const matchesSearch = !sanitizedQuery || (
-      (inf.fullname && inf.fullname.toLowerCase().includes(searchLower)) ||
-      (inf.username && inf.username.toLowerCase().includes(searchLower)) ||
-      (inf.bio && inf.bio.toLowerCase().includes(searchLower)) ||
-      (inf.platform && inf.platform.toLowerCase().includes(searchLower))
-    );
-    
-    // Platform filter
-    const matchesPlatform = selectedPlatform === 'All Platforms' || 
-      (inf.platform && inf.platform.toLowerCase() === selectedPlatform.toLowerCase());
-    
-    // Rating filter
-    const matchesRating = selectedRating === 'All Ratings' || 
-      (() => {
-        if (!inf.avg_overall) return false;
-        const rating = parseFloat(inf.avg_overall);
-        switch (selectedRating) {
-          case '5 Stars': return rating >= 4.5;
-          case '4 Stars & up': return rating >= 3.5;
-          case '3 Stars & up': return rating >= 2.5;
-          default: return true;
-        }
-      })();
-    
-    // Tag filter
-    const matchesTag = activeTag === 'All' || 
-      (inf.tags && inf.tags.some(tag => tag.toLowerCase().includes(activeTag.toLowerCase().replace('#', ''))));
-    
-    return matchesSearch && matchesPlatform && matchesRating && matchesTag;
-  });
+  // Enhanced filtering with multiple criteria - using useMemo to prevent infinite loops
+  const filteredInfluencers = useMemo(() => {
+    return influencers.filter((inf) => {
+      // Check if influencer has required fields
+      if (!inf.fullname && !inf.username) return false;
+      
+      const sanitizedQuery = sanitizeInput(searchQuery);
+      const searchLower = sanitizedQuery.toLowerCase();
+      
+      // Search filter
+      const matchesSearch = !sanitizedQuery || (
+        (inf.fullname && inf.fullname.toLowerCase().includes(searchLower)) ||
+        (inf.username && inf.username.toLowerCase().includes(searchLower)) ||
+        (inf.bio && inf.bio.toLowerCase().includes(searchLower)) ||
+        (inf.platform && inf.platform.toLowerCase().includes(searchLower))
+      );
+      
+      // Platform filter
+      const matchesPlatform = selectedPlatform === 'All Platforms' || 
+        (inf.platform && inf.platform.toLowerCase() === selectedPlatform.toLowerCase());
+      
+      // Rating filter
+      const matchesRating = selectedRating === 'All Ratings' || 
+        (() => {
+          if (!inf.avg_overall) return false;
+          const rating = parseFloat(inf.avg_overall);
+          switch (selectedRating) {
+            case '5 Stars': return rating >= 4.5;
+            case '4 Stars & up': return rating >= 3.5;
+            case '3 Stars & up': return rating >= 2.5;
+            default: return true;
+          }
+        })();
+      
+      // Tag filter
+      const matchesTag = activeTag === 'All' || 
+        (inf.tags && inf.tags.some(tag => tag.toLowerCase().includes(activeTag.toLowerCase().replace('#', ''))));
+      
+      return matchesSearch && matchesPlatform && matchesRating && matchesTag;
+    });
+  }, [influencers, searchQuery, selectedPlatform, selectedRating, activeTag]);
 
   // Handle search input with validation
   const handleSearchChange = (e) => {
@@ -129,7 +132,7 @@ const SearchInfluencer = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [filteredInfluencers, currentPage, hasMore, isLoadingMore]);
+  }, [currentPage, hasMore, isLoadingMore]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -141,7 +144,7 @@ const SearchInfluencer = () => {
     const initialInfluencers = filteredInfluencers.slice(0, ITEMS_PER_PAGE);
     setDisplayedInfluencers(initialInfluencers);
     setHasMore(filteredInfluencers.length > ITEMS_PER_PAGE);
-  }, [filteredInfluencers]);
+  }, [filteredInfluencers.length, searchQuery, selectedPlatform, selectedRating, activeTag]);
 
   useEffect(() => {
     const fetchInfluencers = async () => {
@@ -215,42 +218,47 @@ const SearchInfluencer = () => {
   };
 
   return (
-    <div className="bg-slate-50 w-full p-4 sm:p-6 lg:p-8 font-sans">
-      {/* ... (Your existing header and button div) ... */}
-      <div className="flex flex-col items-center text-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">Discover Influencers</h1>
-        <p className="text-slate-500 text-sm sm:text-base lg:text-lg px-4">
-          Find authentic creators through community ratings and reviews
-        </p>
-      </div>
+    <div className="relative w-full font-sans">
+      <div className="relative z-10 bg-slate-50/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8">
+        {/* Header section with background */}
+        <div className="relative mb-8"> 
+        
+          <div className="relative z-20">
+            <div className="flex flex-col items-center text-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">Discover Influencers</h1>
+              <p className="text-slate-500 text-sm sm:text-base lg:text-lg px-4">
+                Find authentic creators through community ratings and reviews
+              </p>
+            </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300"
-        >
-          <HiPlus className="w-5 h-5" />
-          Add Influencer
-        </button>
-        <div className="flex items-center gap-2 text-slate-600">
-          <HiUserGroup className="w-5 h-5 text-blue-500" />
-          <span className="font-medium">
-            {isLoading ? 'Loading...' : `${filteredInfluencers.length} influencers found`}
-          </span>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300"
+              >
+                <HiPlus className="w-5 h-5" />
+                Add Influencer
+              </button>
+              <div className="flex items-center gap-2 text-slate-600">
+                <HiUserGroup className="w-5 h-5 text-blue-500" />
+                <span className="font-medium">
+                  {isLoading ? 'Loading...' : `${filteredInfluencers.length} influencers found`}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="max-w-5xl mx-auto mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-center">{error}</p>
-        </div>
-      )}
+        {/* Error Display */}
+        {error && (
+          <div className="max-w-5xl mx-auto mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-center">{error}</p>
+          </div>
+        )}
 
-      {/* ... (Your existing Filter Section Card) ... */}
-      <div className="max-w-5xl mx-auto bg-white p-4 sm:p-6 rounded-xl shadow-lg">
-        {/* ... All your inputs and buttons are correct ... */}
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        {/* Filter Section Card */}
+        <div className="max-w-5xl mx-auto bg-white p-4 sm:p-6 rounded-xl shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="relative col-span-1 md:col-span-1">
               <HiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input 
@@ -293,64 +301,64 @@ const SearchInfluencer = () => {
               </select>
               <HiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             {filterTags.map((tag) => (
-            <button 
-              key={tag} 
-              onClick={() => handleTagClick(tag)} 
-              className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors duration-300 ${
-                activeTag === tag ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
+              <button 
+                key={tag} 
+                onClick={() => handleTagClick(tag)} 
+                className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors duration-300 ${
+                  activeTag === tag ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
                 {tag}
-            </button>
+              </button>
             ))}
+          </div>
+          
+          {/* Active Filters Display */}
+          {(searchQuery || activeTag !== 'All' || selectedRating !== 'All Ratings' || selectedPlatform !== 'All Platforms') && (
+            <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-200">
+              <span className="text-sm text-slate-600">Active filters:</span>
+              {searchQuery && (
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                  Search: "{searchQuery}"
+                </span>
+              )}
+              {activeTag !== 'All' && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                  Tag: {activeTag}
+                </span>
+              )}
+              {selectedRating !== 'All Ratings' && (
+                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
+                  Rating: {selectedRating}
+                </span>
+              )}
+              {selectedPlatform !== 'All Platforms' && (
+                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                  Platform: {selectedPlatform}
+                </span>
+              )}
+              <button
+                onClick={clearAllFilters}
+                className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
         </div>
         
-        {/* Active Filters Display */}
-        {(searchQuery || activeTag !== 'All' || selectedRating !== 'All Ratings' || selectedPlatform !== 'All Platforms') && (
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-200">
-            <span className="text-sm text-slate-600">Active filters:</span>
-            {searchQuery && (
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                Search: "{searchQuery}"
-              </span>
-            )}
-            {activeTag !== 'All' && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                Tag: {activeTag}
-              </span>
-            )}
-            {selectedRating !== 'All Ratings' && (
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
-                Rating: {selectedRating}
-              </span>
-            )}
-            {selectedPlatform !== 'All Platforms' && (
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                Platform: {selectedPlatform}
-              </span>
-            )}
-            <button
-              onClick={clearAllFilters}
-              className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors"
-            >
-              Clear All
-            </button>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="max-w-5xl mx-auto mt-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-slate-600">Loading influencers...</p>
           </div>
         )}
-      </div>
-      
-             {/* Loading State */}
-       {isLoading && (
-         <div className="max-w-5xl mx-auto mt-8 text-center">
-           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-           <p className="mt-4 text-slate-600">Loading influencers...</p>
-         </div>
-       )}
 
-               {/* Search Results Info */}
+        {/* Search Results Info */}
         {!isLoading && (searchQuery || activeTag !== 'All' || selectedRating !== 'All Ratings' || selectedPlatform !== 'All Platforms') && (
           <div className="max-w-5xl mx-auto mt-4 text-center">
             <p className="text-slate-600">
@@ -363,45 +371,46 @@ const SearchInfluencer = () => {
           </div>
         )}
 
-               {/* Display Filtered Results */}
-         {!isLoading && (
-           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-             {displayedInfluencers.length > 0 ? (
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                 {displayedInfluencers.map((influencer) => (
-                   <InfluencerCard key={influencer.id} influencer={influencer} />
-                 ))}
-               </div>
-             ) : (
-               <div className="text-center py-8 sm:py-12">
-                 <p className="text-slate-500 text-base sm:text-lg">
-                   {searchQuery ? `No influencers found for "${searchQuery}"` : 'No influencers available'}
-                 </p>
-               </div>
-             )}
-             
-             {/* Load More Indicator */}
-             {isLoadingMore && (
-               <div className="text-center mt-8">
-                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                 <p className="mt-2 text-slate-600 text-sm">Loading more influencers...</p>
-               </div>
-             )}
-             
-             {/* End of Results */}
-             {!hasMore && displayedInfluencers.length > 0 && (
-               <div className="text-center mt-8">
-                 <p className="text-slate-500 text-sm">You've reached the end of the results</p>
-               </div>
-             )}
-           </div>
-         )}
-       
-       {/* THIS IS THE MISSING PART 👇 */}
-       <AddNewInfluencerModal 
-         isOpen={isModalOpen} 
-         onClose={() => setIsModalOpen(false)} 
-       />
+        {/* Display Filtered Results */}
+        {!isLoading && (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            {displayedInfluencers.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                {displayedInfluencers.map((influencer) => (
+                  <InfluencerCard key={influencer.id} influencer={influencer} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 sm:py-12">
+                <p className="text-slate-500 text-base sm:text-lg">
+                  {searchQuery ? `No influencers found for "${searchQuery}"` : 'No influencers available'}
+                </p>
+              </div>
+            )}
+            
+            {/* Load More Indicator */}
+            {isLoadingMore && (
+              <div className="text-center mt-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="mt-2 text-slate-600 text-sm">Loading more influencers...</p>
+              </div>
+            )}
+            
+            {/* End of Results */}
+            {!hasMore && displayedInfluencers.length > 0 && (
+              <div className="text-center mt-8">
+                <p className="text-slate-500 text-sm">You've reached the end of the results</p>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Add Influencer Modal */}
+        <AddNewInfluencerModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+        />
+      </div>
     </div>
   )
 }
