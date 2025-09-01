@@ -1,12 +1,17 @@
-# React + Vite
+Rate-it ⭐️📊
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Rate-it is a web application that helps users discover, rate, and review influencers. 🌟 By leveraging community-driven ratings and reviews, users can find authentic creators and make informed decisions about the influencers they follow. 👩‍💻👨‍💻
 
-Currently, two official plugins are available:
+Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🔍 Search, filter, and sort influencers to find the best fit.
 
-## Expanding the ESLint configuration
+📝 Rate and review influencers based on real experiences.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+💻 Modern and responsive UI built with React and Tailwind CSS.
+
+⚡ Real-time data management powered by Supabase.
+
+Tech Stack: React ⚛️ | Tailwind CSS 🎨 | Supabase 🛠️ | Vercel 🚀
+
+Purpose: Empower users to find trustworthy influencers and make engagement decisions based on community feedback. 💬
