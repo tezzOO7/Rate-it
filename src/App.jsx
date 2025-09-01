@@ -1,6 +1,6 @@
 import React from "react";
 import { Analytics } from "@vercel/analytics/react"
-
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import Navbar from "./components/header/Navbar";
 import SearchInfluncer from "./components/SearchInfluncer";
 import Footer from "./components/footer/Footer";
@@ -14,6 +14,7 @@ const App = () => {
         <Navbar></Navbar>
         <SearchInfluncer></SearchInfluncer>
         <Analytics />
+        <SpeedInsights />
       </div>
       <Footer />
     </div>
