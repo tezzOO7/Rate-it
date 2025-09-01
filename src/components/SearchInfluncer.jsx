@@ -4,6 +4,7 @@ import supabase from '../supabaseClient';
 // Correct the path if your modal is in a different folder
 import AddNewInfluencerModal from './AddinfluencerModal'; 
 import InfluencerCard from './Influncerscard/InfluncerCards';
+import SkeletonCard from './Influncerscard/SkeletonCard';
 
 import { HiMagnifyingGlass, HiPlus, HiUserGroup, HiChevronDown } from 'react-icons/hi2';
 
@@ -217,7 +218,8 @@ const SearchInfluencer = () => {
     setSearchError(null);
   };
 
-  return (
+  return (<>  
+    <div></div>
     <div className="relative w-full font-sans">
       <div className="relative z-10 bg-slate-50/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8">
         {/* Header section with background */}
@@ -239,7 +241,7 @@ const SearchInfluencer = () => {
                 <HiPlus className="w-5 h-5" />
                 Add Influencer
               </button>
-              <div className="flex items-center gap-2 text-slate-600">
+              <div className="flex items-center gap-2 text-slate-600 min-w-[150px]">
                 <HiUserGroup className="w-5 h-5 text-blue-500" />
                 <span className="font-medium">
                   {isLoading ? 'Loading...' : `${filteredInfluencers.length} influencers found`}
@@ -352,9 +354,12 @@ const SearchInfluencer = () => {
         
         {/* Loading State */}
         {isLoading && (
-          <div className="max-w-5xl mx-auto mt-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-slate-600">Loading influencers...</p>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {Array.from({ length: 12 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
+            </div>
           </div>
         )}
 
@@ -412,6 +417,7 @@ const SearchInfluencer = () => {
         />
       </div>
     </div>
+    </>
   )
 }
 
